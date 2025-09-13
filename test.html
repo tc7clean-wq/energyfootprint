@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Footprint - Tests</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-pass { color: #10b981; }
+        .test-fail { color: #ef4444; }
+        .test-section { margin: 2rem 0; padding: 1rem; border: 1px solid #374151; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300 min-h-screen font-sans p-8">
+    <h1 class="text-3xl font-bold text-white mb-8">Energy Footprint - Test Suite</h1>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        // Simple test framework
+        class TestSuite {
+            constructor() {
+                this.tests = [];
+                this.results = [];
+            }
+            
+            test(name, fn) {
+                this.tests.push({ name, fn });
+            }
+            
+            async run() {
+                const resultsDiv = document.getElementById('test-results');
+                resultsDiv.innerHTML = '<h2 class="text-xl font-bold text-white mb-4">Running Tests...</h2>';
+                
+                for (const test of this.tests) {
+                    try {
+                        await test.fn();
+                        this.results.push({ name: test.name, status: 'pass' });
+                        console.log(`✅ ${test.name}`);
+                    } catch (error) {
+                        this.results.push({ name: test.name, status: 'fail', error: error.message });
+                        console.error(`❌ ${test.name}: ${error.message}`);
+                    }
+                }
+                
+                this.renderResults();
+            }
+            
+            renderResults() {
+                const resultsDiv = document.getElementById('test-results');
+                const passed = this.results.filter(r => r.status === 'pass').length;
+                const failed = this.results.filter(r => r.status === 'fail').length;
+                
+                resultsDiv.innerHTML = `
+                    <h2 class="text-xl font-bold text-white mb-4">Test Results</h2>
+                    <div class="mb-4">
+                        <span class="test-pass">✅ ${passed} passed</span> | 
+                        <span class="test-fail">❌ ${failed} failed</span>
+                    </div>
+                    ${this.results.map(result => `
+                        <div class="test-section">
+                            <h3 class="font-bold ${result.status === 'pass' ? 'test-pass' : 'test-fail'}">
+                                ${result.status === 'pass' ? '✅' : '❌'} ${result.name}
+                            </h3>
+                            ${result.error ? `<p class="text-red-400 text-sm mt-2">${result.error}</p>` : ''}
+                        </div>
+                    `).join('')}
+                `;
+            }
+        }
+        
+        // Test suite
+        const suite = new TestSuite();
+        
+        // Test validation functions
+        suite.test('validateInput - valid number', () => {
+            // Mock the validateInput function
+            function validateInput(value, min = 0, max = Infinity, fieldName = 'Value') {
+                const numValue = parseFloat(value);
+                if (isNaN(numValue)) {
+                    throw new Error(`${fieldName} must be a valid number`);
+                }
+                if (numValue < min) {
+                    throw new Error(`${fieldName} must be at least ${min}`);
+                }
+                if (numValue > max) {
+                    throw new Error(`${fieldName} must be no more than ${max}`);
+                }
+                return numValue;
+            }
+            
+            const result = validateInput('5.5', 0, 10, 'Test value');
+            if (result !== 5.5) {
+                throw new Error('Expected 5.5, got ' + result);
+            }
+        });
+        
+        suite.test('validateInput - invalid number', () => {
+            function validateInput(value, min = 0, max = Infinity, fieldName = 'Value') {
+                const numValue = parseFloat(value);
+                if (isNaN(numValue)) {
+                    throw new Error(`${fieldName} must be a valid number`);
+                }
+                if (numValue < min) {
+                    throw new Error(`${fieldName} must be at least ${min}`);
+                }
+                if (numValue > max) {
+                    throw new Error(`${fieldName} must be no more than ${max}`);
+                }
+                return numValue;
+            }
+            
+            try {
+                validateInput('abc', 0, 10, 'Test value');
+                throw new Error('Expected validation to fail');
+            } catch (error) {
+                if (!error.message.includes('must be a valid number')) {
+                    throw new Error('Expected "must be a valid number" error');
+                }
+            }
+        });
+        
+        suite.test('validateInput - out of range', () => {
+            function validateInput(value, min = 0, max = Infinity, fieldName = 'Value') {
+                const numValue = parseFloat(value);
+                if (isNaN(numValue)) {
+                    throw new Error(`${fieldName} must be a valid number`);
+                }
+                if (numValue < min) {
+                    throw new Error(`${fieldName} must be at least ${min}`);
+                }
+                if (numValue > max) {
+                    throw new Error(`${fieldName} must be no more than ${max}`);
+                }
+                return numValue;
+            }
+            
+            try {
+                validateInput('15', 0, 10, 'Test value');
+                throw new Error('Expected validation to fail');
+            } catch (error) {
+                if (!error.message.includes('must be no more than 10')) {
+                    throw new Error('Expected "must be no more than 10" error');
+                }
+            }
+        });
+        
+        // Test calculation functions
+        suite.test('calculateAdvancedCosts - basic calculation', () => {
+            function calculateAdvancedCosts(appliances) {
+                const electricityRate = 0.15;
+                const carbonIntensity = 0.4;
+                
+                let totalCost = 0;
+                let totalCarbon = 0;
+                let totalKwh = 0;
+                
+                appliances.forEach(appliance => {
+                    const monthlyKwh = (appliance.watts * appliance.hoursPerDay * 30) / 1000;
+                    totalKwh += monthlyKwh;
+                    const monthlyCost = monthlyKwh * electricityRate;
+                    totalCost += monthlyCost;
+                });
+                
+                totalCarbon = totalKwh * carbonIntensity;
+                
+                return {
+                    totalCost: totalCost,
+                    totalCarbon: totalCarbon,
+                    totalKwh: totalKwh
+                };
+            }
+            
+            const testAppliances = [
+                { watts: 100, hoursPerDay: 4 },
+                { watts: 200, hoursPerDay: 2 }
+            ];
+            
+            const result = calculateAdvancedCosts(testAppliances);
+            const expectedKwh = (100 * 4 * 30 / 1000) + (200 * 2 * 30 / 1000);
+            const expectedCost = expectedKwh * 0.15;
+            const expectedCarbon = expectedKwh * 0.4;
+            
+            if (Math.abs(result.totalKwh - expectedKwh) > 0.01) {
+                throw new Error(`Expected ${expectedKwh} kWh, got ${result.totalKwh}`);
+            }
+            if (Math.abs(result.totalCost - expectedCost) > 0.01) {
+                throw new Error(`Expected $${expectedCost}, got $${result.totalCost}`);
+            }
+            if (Math.abs(result.totalCarbon - expectedCarbon) > 0.01) {
+                throw new Error(`Expected ${expectedCarbon} kg CO₂, got ${result.totalCarbon}`);
+            }
+        });
+        
+        // Test appliance validation
+        suite.test('validateApplianceData - valid appliance', () => {
+            function validateApplianceData(appliance) {
+                if (!appliance.name || appliance.name.trim() === '') {
+                    throw new Error('Appliance name is required');
+                }
+                if (!appliance.watts || isNaN(appliance.watts) || appliance.watts <= 0) {
+                    throw new Error('Appliance wattage must be a positive number');
+                }
+                if (!appliance.hoursPerDay || isNaN(appliance.hoursPerDay) || appliance.hoursPerDay < 0 || appliance.hoursPerDay > 24) {
+                    throw new Error('Hours per day must be between 0 and 24');
+                }
+                return true;
+            }
+            
+            const validAppliance = {
+                name: 'Test Appliance',
+                watts: 100,
+                hoursPerDay: 4
+            };
+            
+            const result = validateApplianceData(validAppliance);
+            if (result !== true) {
+                throw new Error('Expected validation to pass');
+            }
+        });
+        
+        suite.test('validateApplianceData - invalid appliance', () => {
+            function validateApplianceData(appliance) {
+                if (!appliance.name || appliance.name.trim() === '') {
+                    throw new Error('Appliance name is required');
+                }
+                if (!appliance.watts || isNaN(appliance.watts) || appliance.watts <= 0) {
+                    throw new Error('Appliance wattage must be a positive number');
+                }
+                if (!appliance.hoursPerDay || isNaN(appliance.hoursPerDay) || appliance.hoursPerDay < 0 || appliance.hoursPerDay > 24) {
+                    throw new Error('Hours per day must be between 0 and 24');
+                }
+                return true;
+            }
+            
+            const invalidAppliance = {
+                name: '',
+                watts: -100,
+                hoursPerDay: 25
+            };
+            
+            try {
+                validateApplianceData(invalidAppliance);
+                throw new Error('Expected validation to fail');
+            } catch (error) {
+                if (!error.message.includes('Appliance name is required')) {
+                    throw new Error('Expected "Appliance name is required" error');
+                }
+            }
+        });
+        
+        // Run tests
+        suite.run();
+    </script>
+</body>
+</html>

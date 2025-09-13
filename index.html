@@ -5,48 +5,153 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Energy Footprint</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-900 text-gray-300 min-h-screen font-sans">
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
     <!-- Header -->
-    <header class="bg-gray-800 border-b border-gray-700">
+    <header class="bg-gray-800 border-b border-gray-700" role="banner">
         <div class="container mx-auto px-6 py-4">
             <h1 class="text-3xl font-bold text-white">My Energy Footprint</h1>
         </div>
     </header>
 
     <!-- Main Container -->
-    <main class="container mx-auto px-6 py-6">
+    <main id="main-content" class="container mx-auto px-6 py-6" role="main">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             <!-- Left Column: Control Panel -->
             <div class="lg:col-span-1 space-y-6">
 
                 <!-- Settings Section -->
-                <section id="settings-section" class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                    <h2 class="text-xl font-bold mb-4 text-white">Settings</h2>
-                    <div class="space-y-2">
-                        <label for="electricity-rate" class="block text-sm font-medium text-gray-400">
-                            Electricity Rate
-                        </label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">$</span>
-                            <input type="number" id="electricity-rate" value="0.15" step="0.01" min="0"
-                                   class="bg-gray-700 text-white pl-8 pr-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-gray-600 hover:border-gray-500 transition-colors"
-                                   placeholder="0.00">
-                            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">/kWh</span>
+                <section id="settings-section" class="bg-gray-800 rounded-lg p-6 border border-gray-700" aria-labelledby="settings-heading">
+                    <h2 id="settings-heading" class="text-xl font-bold mb-4 text-white">Settings</h2>
+                        <div class="space-y-2">
+                            <label for="electricity-rate" class="block text-sm font-medium text-gray-400">
+                                Electricity Rate (per kWh)
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">$</span>
+                                <input type="number" id="electricity-rate" value="0.15" step="0.01" min="0"
+                                       class="bg-gray-700 text-white pl-8 pr-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-gray-600 hover:border-gray-500 transition-colors"
+                                       placeholder="0.00">
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">/kWh</span>
+                            </div>
                         </div>
-                    </div>
+                        
+                        <!-- Advanced Rate Settings -->
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="time-of-use-rates" class="mr-2" aria-describedby="time-of-use-help">
+                                <label for="time-of-use-rates" class="text-sm font-medium text-gray-400">
+                                    Time-of-Use Rates
+                                </label>
+                            </div>
+                            <p id="time-of-use-help" class="text-xs text-gray-500 ml-6">Enable different rates for peak and off-peak hours</p>
+                            
+                            <div id="time-of-use-settings" class="hidden space-y-2 pl-6 border-l-2 border-gray-600">
+                                <div>
+                                    <label for="peak-rate" class="block text-xs text-gray-500 mb-1">Peak Rate (6PM-10PM)</label>
+                                    <div class="relative">
+                                        <span class="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                        <input type="number" id="peak-rate" value="0.25" step="0.01" min="0"
+                                               class="bg-gray-700 text-white pl-6 pr-2 py-2 rounded text-sm w-full focus:outline-none focus:ring-1 focus:ring-cyan-500 border border-gray-600">
+                                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs">/kWh</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="off-peak-rate" class="block text-xs text-gray-500 mb-1">Off-Peak Rate</label>
+                                    <div class="relative">
+                                        <span class="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                        <input type="number" id="off-peak-rate" value="0.10" step="0.01" min="0"
+                                               class="bg-gray-700 text-white pl-6 pr-2 py-2 rounded text-sm w-full focus:outline-none focus:ring-1 focus:ring-cyan-500 border border-gray-600">
+                                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs">/kWh</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Carbon Footprint Settings -->
+                        <div class="space-y-2">
+                            <label for="carbon-intensity" class="block text-sm font-medium text-gray-400">
+                                Carbon Intensity (kg CO₂ per kWh)
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="carbon-intensity" value="0.4" step="0.01" min="0"
+                                       class="bg-gray-700 text-white pl-4 pr-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-gray-600 hover:border-gray-500 transition-colors"
+                                       placeholder="0.40">
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">kg CO₂/kWh</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Data Management -->
+                        <div class="pt-4 border-t border-gray-600">
+                            <h3 class="text-sm font-medium text-gray-400 mb-3">Data Management</h3>
+                            <div class="space-y-2">
+                                <button id="export-data-btn" 
+                                        class="w-full bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                                    📤 Export Data
+                                </button>
+                                <label for="import-data-input" 
+                                       class="w-full bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm cursor-pointer block text-center">
+                                    📥 Import Data
+                                </label>
+                                <input type="file" id="import-data-input" accept=".json" class="hidden">
+                                <button id="clear-data-btn" 
+                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                                    🗑️ Clear All Data
+                                </button>
+                            </div>
+                        </div>
                 </section>
 
                 <!-- Add Appliance Section -->
                 <section id="add-item-section" class="bg-gray-800 rounded-lg p-6 border border-gray-700">
                     <h2 class="text-xl font-bold mb-4 text-white">Add Appliance</h2>
                     <div class="space-y-3">
+                        <!-- Search Box -->
+                        <div class="relative">
+                            <input type="text" id="appliance-search"
+                                   placeholder="Search for appliances..."
+                                   class="bg-gray-700 text-white px-4 py-3 pr-10 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-gray-600 hover:border-gray-500 transition-colors">
+                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Category Filter -->
+                        <select id="category-filter"
+                                class="bg-gray-700 text-white px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-gray-600 hover:border-gray-500 transition-colors">
+                            <option value="">All Categories</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Computing">Computing</option>
+                            <option value="Kitchen">Kitchen</option>
+                            <option value="Laundry">Laundry</option>
+                            <option value="Climate">Climate Control</option>
+                            <option value="Lighting">Lighting</option>
+                            <option value="Electronics">Personal Electronics</option>
+                            <option value="Gaming">Gaming & Hobby</option>
+                            <option value="Cleaning">Cleaning</option>
+                            <option value="Water">Water & Pool</option>
+                            <option value="Workshop">Workshop</option>
+                            <option value="Garage">Garage</option>
+                            <option value="Outdoor">Outdoor & Garden</option>
+                        </select>
+
+                        <!-- Appliance Select Dropdown -->
                         <select id="appliance-select"
                                 class="bg-gray-700 text-white px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-gray-600 hover:border-gray-500 transition-colors">
                             <option value="">Select an appliance...</option>
                         </select>
+
+                        <!-- Results Count -->
+                        <div id="results-count" class="text-sm text-gray-400 px-2"></div>
+
                         <button id="add-appliance-btn"
                                 class="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg">
                             + Add Appliance
@@ -60,22 +165,35 @@
 
                 <!-- Summary Card -->
                 <section id="summary-section" class="bg-gradient-to-r from-cyan-600 to-cyan-500 rounded-lg p-8 border border-cyan-400 shadow-xl">
-                    <div class="text-center">
-                        <p class="text-sm text-gray-100 uppercase tracking-wider font-bold mb-2">Total Monthly Cost</p>
-                        <p id="total-cost" class="text-5xl font-bold text-white">$0.00</p>
-                        <p class="text-gray-100 text-sm mt-2">Based on your current usage</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="text-center">
+                            <p class="text-sm text-gray-100 uppercase tracking-wider font-bold mb-2">Total Monthly Cost</p>
+                            <p id="total-cost" class="text-4xl font-bold text-white">$0.00</p>
+                            <p class="text-gray-100 text-sm mt-2">Based on your current usage</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm text-gray-100 uppercase tracking-wider font-bold mb-2">Monthly Carbon Footprint</p>
+                            <p id="total-carbon" class="text-4xl font-bold text-white">0.0 kg</p>
+                            <p class="text-gray-100 text-sm mt-2">CO₂ emissions</p>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Dashboard Section -->
                 <section id="dashboard-section" class="bg-gray-800 rounded-lg p-6 border border-gray-700 min-h-[400px]">
-                    <!-- Scenario Toggle Button -->
+                    <!-- Dashboard Controls -->
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-bold text-white">Your Appliances</h2>
-                        <button id="toggle-scenario-btn"
-                                class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-2 rounded-lg font-bold transition-all transform hover:scale-105">
-                            Plan My Savings
-                        </button>
+                        <div class="flex gap-2">
+                            <button id="show-reports-btn"
+                                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                                📊 Reports
+                            </button>
+                            <button id="toggle-scenario-btn"
+                                    class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-2 rounded-lg font-bold transition-all transform hover:scale-105">
+                                Plan My Savings
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Main Dashboard Container -->
@@ -139,6 +257,39 @@
                             </div>
                         </div>
 
+                    </div>
+                </section>
+
+                <!-- Reports Section -->
+                <section id="reports-section" class="bg-gray-800 rounded-lg p-6 border border-gray-700 hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-white">Energy Reports</h2>
+                        <button id="hide-reports-btn"
+                                class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            ← Back to Appliances
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Usage by Category Chart -->
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-white mb-4">Usage by Category</h3>
+                            <canvas id="category-chart" width="400" height="300"></canvas>
+                        </div>
+                        
+                        <!-- Cost Breakdown Chart -->
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-white mb-4">Cost Breakdown</h3>
+                            <canvas id="cost-chart" width="400" height="300"></canvas>
+                        </div>
+                        
+                        <!-- Energy Efficiency Recommendations -->
+                        <div class="bg-gray-700 rounded-lg p-4 lg:col-span-2">
+                            <h3 class="text-lg font-semibold text-white mb-4">Energy Efficiency Recommendations</h3>
+                            <div id="recommendations-list" class="space-y-3">
+                                <!-- Recommendations will be populated by JavaScript -->
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
