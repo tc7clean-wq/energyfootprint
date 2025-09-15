@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
+    <script src="deviceDatabase.js"></script>
 </head>
 <body class="bg-gray-900 text-gray-300 min-h-screen font-sans">
     <!-- Skip link for accessibility -->
@@ -110,12 +111,22 @@
 
                 <!-- Add Appliance Section -->
                 <section id="add-item-section" class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                    <h2 class="text-xl font-bold mb-4 text-white">Add Appliance</h2>
+                    <h2 class="text-xl font-bold mb-4 text-white">Add Device</h2>
                     <div class="space-y-3">
+                        <!-- Category Quick Buttons -->
+                        <div id="category-buttons" class="grid grid-cols-2 gap-2 mb-3">
+                            <button onclick="filterByCategory('tvs')" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition-colors">📺 TVs</button>
+                            <button onclick="filterByCategory('computers')" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition-colors">💻 Computers</button>
+                            <button onclick="filterByCategory('kitchen')" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition-colors">🍳 Kitchen</button>
+                            <button onclick="filterByCategory('laundry')" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition-colors">👕 Laundry</button>
+                            <button onclick="filterByCategory('hvac')" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition-colors">❄️ HVAC</button>
+                            <button onclick="filterByCategory('gaming')" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition-colors">🎮 Gaming</button>
+                        </div>
+
                         <!-- Search Box -->
                         <div class="relative">
                             <input type="text" id="appliance-search"
-                                   placeholder="Search for appliances..."
+                                   placeholder="Search devices by name, brand, or year..."
                                    class="bg-gray-700 text-white px-4 py-3 pr-10 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-cyan-500 border border-gray-600 hover:border-gray-500 transition-colors">
                             <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,9 +163,9 @@
                         <!-- Results Count -->
                         <div id="results-count" class="text-sm text-gray-400 px-2"></div>
 
-                        <button id="add-appliance-btn"
+                        <button id="add-appliance-btn" onclick="addDeviceToList()"
                                 class="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg">
-                            + Add Appliance
+                            + Add Device
                         </button>
                     </div>
                 </section>
@@ -297,5 +308,6 @@
     </main>
 
     <script src="app.js"></script>
+    <script src="app-enhanced.js"></script>
 </body>
 </html>

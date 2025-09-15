@@ -1201,7 +1201,13 @@ function toggleScenarioMode() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    populateApplianceDropdown();
+    // Initialize enhanced device search if available
+    if (typeof initializeDeviceSearch === 'function') {
+        setTimeout(() => {
+            initializeDeviceSearch();
+        }, 100);
+    } else {
+        populateApplianceDropdown();
 
     const addButton = document.getElementById('add-appliance-btn');
     const selectElement = document.getElementById('appliance-select');
